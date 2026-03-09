@@ -1,0 +1,51 @@
+---
+- name: Create GPU monitor directory
+  file:
+    path: /opt/gpu_monitor
+    state: directory
+    mode: "0755"
+
+- name: Deploy GPU monitoring script
+  copy:
+    src: gpu_monitor.py
+    dest: /opt/gpu_monitor/gpu_monitor.py
+    mode: "0755"
+  notify: restart gpu_monitor
+
+- name: Create log file with proper permissions
+  file:
+    path: /var/log/gpu_monitor.log
+    state: touch
+    owner: "{{ ansible_user }}"
+    mode: "0644"
+  changed_when: false
+
+- name: Install GPU monitor systemd service
+  template:
+    src: gpu_monitor.service.j2
+    dest: /etc/systemd/system/gpu_monitor.service
+    mode: "0644"
+  notify: restart gpu_monitor
+
+- name: Enable and start GPU monitor
+  systemd:
+    name: gpu_monitor
+    enabled: true
+    state: started
+    daemon_reload: true
+
+# ─── Optional: DCGM for desktop GPUs ─────────────
+# DCGM provides deeper diagnostics than nvidia-smi
+# See docker-gpu-guide.md section 8 for dcgmi commands
+- name: Deploy DCGM exporter container (desktop only)
+  docker_container:
+    name: dcgm-exporter
+    image: "nvcr.io/nvidia/k8s/dcgm-exporter:3.3.5-3.4.1-ubuntu22.04"
+    state: started
+    restart_policy: unless-stopped
+    runtime: nvidia
+    published_ports:
+      - "9400:9400"
+  when:
+    - gpu_type == "discrete"
+    - install_dcgm | default(false) | bool

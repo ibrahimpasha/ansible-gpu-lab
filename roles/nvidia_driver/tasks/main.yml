@@ -1,0 +1,60 @@
+---
+- name: Check if NVIDIA driver is installed
+  command: nvidia-smi
+  register: nvidia_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Display current driver status
+  debug:
+    msg: "{{ 'NVIDIA driver OK' if nvidia_check.rc == 0 else 'NVIDIA driver NOT found' }}"
+
+# ─── Desktop GPUs: Install from PPA ──────────────
+- name: Install NVIDIA driver (desktop GPUs)
+  block:
+    - name: Add NVIDIA driver PPA
+      apt_repository:
+        repo: ppa:graphics-drivers/ppa
+        state: present
+
+    - name: Update apt cache
+      apt:
+        update_cache: true
+
+    - name: Install NVIDIA driver
+      apt:
+        name: "nvidia-driver-{{ nvidia_driver_version }}"
+        state: present
+      notify: reboot for driver
+
+    - name: Install NVIDIA utils
+      apt:
+        name:
+          - nvidia-utils-{{ nvidia_driver_version }}
+          - nvidia-settings
+        state: present
+  when:
+    - gpu_type == "discrete"
+    - nvidia_check.rc != 0
+
+# ─── Jetson: Driver comes with JetPack ───────────
+- name: Verify JetPack driver (Jetson)
+  shell: cat /etc/nv_tegra_release
+  register: jetpack_release
+  changed_when: false
+  when: gpu_type == "tegra"
+
+- name: Show JetPack version
+  debug:
+    msg: "{{ jetpack_release.stdout }}"
+  when: gpu_type == "tegra"
+
+# ─── Verify driver works ─────────────────────────
+- name: Verify nvidia-smi works
+  command: nvidia-smi
+  register: smi_verify
+  changed_when: false
+
+- name: Print GPU info
+  debug:
+    msg: "{{ smi_verify.stdout_lines[:7] }}"

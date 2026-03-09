@@ -1,0 +1,32 @@
+---
+- name: GPU Health Check
+  hosts: nvidia
+  become: false
+
+  tasks:
+    - name: Run nvidia-smi
+      command: nvidia-smi
+      register: smi_output
+      changed_when: false
+
+    - name: Show GPU info
+      debug:
+        msg: "{{ smi_output.stdout_lines }}"
+
+    - name: Check CUDA version
+      shell: nvcc --version 2>/dev/null || echo "nvcc not in PATH"
+      register: cuda_version
+      changed_when: false
+
+    - name: Display CUDA version
+      debug:
+        msg: "{{ cuda_version.stdout }}"
+
+    - name: Get GPU name and memory
+      shell: nvidia-smi --query-gpu=name,memory.total,memory.used,temperature.gpu --format=csv,noheader
+      register: gpu_details
+      changed_when: false
+
+    - name: Display GPU details
+      debug:
+        msg: "{{ gpu_details.stdout_lines }}"

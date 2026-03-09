@@ -1,0 +1,20 @@
+---
+- name: Create ML workspace directory
+  file:
+    path: /opt/ml-workspace/{{ item }}
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+  loop:
+    - ""
+    - data
+    - checkpoints
+    - logs
+    - notebooks
+
+- name: Deploy ML Docker Compose configuration
+  template:
+    src: docker-compose.gpu.yml.j2
+    dest: /opt/ml-workspace/docker-compose.yml
+    owner: "{{ ansible_user }}"
+    mode: "0644"

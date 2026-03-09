@@ -1,0 +1,35 @@
+---
+# ─── Base Setup for All Nodes ─────────────────────
+- name: Common Setup
+  hosts: nvidia
+  become: true
+  roles:
+    - common
+
+# ─── NVIDIA Driver (desktop vs Jetson handled in role) ─
+- name: NVIDIA Driver Setup
+  hosts: nvidia
+  become: true
+  roles:
+    - nvidia_driver
+
+# ─── Docker + NVIDIA Container Toolkit ────────────
+- name: Docker + GPU Runtime
+  hosts: nvidia
+  become: true
+  roles:
+    - docker_nvidia
+
+# ─── GPU Monitoring ───────────────────────────────
+- name: GPU Monitoring
+  hosts: nvidia
+  become: true
+  roles:
+    - gpu_monitor
+
+# ─── ML Environment ───────────────────────────────
+- name: ML Environment Setup
+  hosts: gpu_desktop
+  become: true
+  roles:
+    - ml_environment

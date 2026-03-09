@@ -1,0 +1,15 @@
+[Unit]
+Description=GPU Monitor Service
+After=network.target nvidia-persistenced.service
+
+[Service]
+Type=simple
+User={{ ansible_user }}
+ExecStart=/usr/bin/python3 /opt/gpu_monitor/gpu_monitor.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

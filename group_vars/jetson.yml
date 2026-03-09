@@ -1,0 +1,6 @@
+---
+gpu_type: tegra
+jetpack_version: "6.1"
+gpu_arch: aarch64
+docker_nvidia_runtime: true
+install_dcgm: false           # DCGM doesn't run on Tegra

@@ -1,0 +1,33 @@
+---
+- name: Set timezone
+  timezone:
+    name: "{{ timezone | default('UTC') }}"
+
+- name: Update apt cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Upgrade system packages
+  apt:
+    upgrade: safe
+  tags: [update]
+
+- name: Install essential packages
+  apt:
+    name: "{{ common_packages }}"
+    state: present
+
+- name: Install Python packages
+  pip:
+    name:
+      - numpy
+      - pynvml
+      - gpustat
+    executable: pip3
+
+- name: Ensure SSH is enabled
+  systemd:
+    name: ssh
+    enabled: true
+    state: started

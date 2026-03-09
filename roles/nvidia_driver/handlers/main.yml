@@ -1,0 +1,6 @@
+---
+- name: reboot for driver
+  reboot:
+    msg: "Rebooting for NVIDIA driver installation"
+    reboot_timeout: 300
+    post_reboot_delay: 30

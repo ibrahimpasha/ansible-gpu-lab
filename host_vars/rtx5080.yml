@@ -1,0 +1,4 @@
+---
+gpu_name: "RTX 5080"
+gpu_vram_gb: 16
+is_primary_node: true

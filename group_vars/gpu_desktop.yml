@@ -1,0 +1,7 @@
+---
+gpu_type: discrete
+nvidia_driver_version: "570"
+cuda_version: "12.8"
+gpu_arch: x86_64
+docker_nvidia_runtime: true
+install_dcgm: true

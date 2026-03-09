@@ -1,0 +1,4 @@
+---
+gpu_name: "Jetson Orin Nano"
+gpu_vram_gb: 8
+is_primary_node: false

@@ -1,0 +1,4 @@
+---
+gpu_name: "RTX 3080"
+gpu_vram_gb: 10
+is_primary_node: false
